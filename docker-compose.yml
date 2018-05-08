@@ -19,6 +19,7 @@ services:
     depends_on:
       - tracker_db
       - mq
+    entrypoint: /wait-for tracker_db:5432 mq:5672 -t 30 -- java -jar tracker.jar
   tracker_db:
     image: postgres:10.2-alpine
     environment:
@@ -38,6 +39,7 @@ services:
       - 8081:8080
     depends_on:
       - mq
+    entrypoint: /wait-for mq:5672 -t 30 -- java -jar reporter.jar
   reporter_db:
     image: mongo:3.7-jessie
     ports:
