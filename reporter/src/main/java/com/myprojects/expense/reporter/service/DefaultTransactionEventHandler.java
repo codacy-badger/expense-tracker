@@ -3,7 +3,7 @@ package com.myprojects.expense.reporter.service;
 import com.myprojects.expense.messages.EventProtos;
 import com.myprojects.expense.reporter.dao.DayReportDao;
 import com.myprojects.expense.reporter.model.DayReport;
-import com.myprojects.expense.reporter.model.ReportStats;
+import com.myprojects.expense.reporter.model.ReportData;
 import com.myprojects.expense.reporter.model.ReportTransaction;
 import org.springframework.stereotype.Service;
 
@@ -46,15 +46,15 @@ public class DefaultTransactionEventHandler implements TransactionEventHandler {
         transaction.setAmount(new BigDecimal(transactionData.getAmount()));
         transaction.setCategory(transactionData.getCategory());
 
-        ReportStats stats = dayReport.getStats();
-        if (transactionType) {
-            dayReport.getIncomes().add(transaction);
-            stats.setTotalIncomes(stats.getTotalIncomes().add(transaction.getAmount()));
-        } else {
-            dayReport.getExpenses().add(transaction);
-            stats.setTotalExpenses(stats.getTotalExpenses().add(transaction.getAmount()));
-        }
-        updateTotal(dayReport.getStats());
+//        ReportData stats = dayReport.getStats();
+//        if (transactionType) {
+//            dayReport.getIncomes().add(transaction);
+//            stats.setTotalIncomes(stats.getTotalIncomes().add(transaction.getAmount()));
+//        } else {
+//            dayReport.getExpenses().add(transaction);
+//            stats.setTotalExpenses(stats.getTotalExpenses().add(transaction.getAmount()));
+//        }
+//        updateTotal(dayReport.getStats());
 
         dayReportDao.save(dayReport);
     }
@@ -62,20 +62,20 @@ public class DefaultTransactionEventHandler implements TransactionEventHandler {
     private void handleDeleteEvent(String transactionId, boolean transactionType, EventProtos.EventData transactionData) {
         DayReport dayReport = getDayReport(transactionData.getDate());
 
-        ReportStats stats = dayReport.getStats();
-        if (transactionType) {
-            BigDecimal transactionAmount = removeTransactionFromList(transactionId, dayReport.getIncomes());
-            stats.setTotalIncomes(stats.getTotalIncomes().subtract(transactionAmount));
-        } else {
-            BigDecimal transactionAmount = removeTransactionFromList(transactionId, dayReport.getExpenses());
-            stats.setTotalExpenses(stats.getTotalExpenses().subtract(transactionAmount));
-        }
-        updateTotal(dayReport.getStats());
+//        ReportData stats = dayReport.getStats();
+//        if (transactionType) {
+//            BigDecimal transactionAmount = removeTransactionFromList(transactionId, dayReport.getIncomes());
+//            stats.setTotalIncomes(stats.getTotalIncomes().subtract(transactionAmount));
+//        } else {
+//            BigDecimal transactionAmount = removeTransactionFromList(transactionId, dayReport.getExpenses());
+//            stats.setTotalExpenses(stats.getTotalExpenses().subtract(transactionAmount));
+//        }
+//        updateTotal(dayReport.getStats());
 
         dayReportDao.save(dayReport);
     }
 
-    private static void updateTotal(ReportStats stats) {
+    private static void updateTotal(ReportData stats) {
         stats.setTotal(stats.getTotalIncomes().subtract(stats.getTotalExpenses()));
     }
 

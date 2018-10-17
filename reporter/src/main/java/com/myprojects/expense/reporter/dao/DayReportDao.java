@@ -1,8 +1,10 @@
 package com.myprojects.expense.reporter.dao;
 
 import com.myprojects.expense.reporter.model.DayReport;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface DayReportDao extends MongoRepository<DayReport, String> {
+import java.util.UUID;
+
+public interface DayReportDao extends CrudRepository<DayReport, UUID> {
 
 }

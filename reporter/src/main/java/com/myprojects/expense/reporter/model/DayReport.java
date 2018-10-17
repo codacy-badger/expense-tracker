@@ -1,57 +1,52 @@
 package com.myprojects.expense.reporter.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.myprojects.expense.reporter.dao.LocalDateJpaConverter;
+import com.myprojects.expense.reporter.dao.ReportDataJpaConverter;
+import org.hibernate.annotations.GenericGenerator;
 
-import java.util.List;
+import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.UUID;
 
-@Document(collection = "dayReports")
+@Entity
+@Table(name = "day_report", schema = "reporter_v1")
 public class DayReport {
 
     @Id
-    private String id;
-    private ReportDate date;
-    private ReportStats stats;
-    private List<ReportTransaction> incomes;
-    private List<ReportTransaction> expenses;
+    @GeneratedValue(generator = "uuid-generator")
+    @GenericGenerator(name = "uuid-generator", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID id;
 
-    public String getId() {
+    @Column(name = "report_date")
+    @Convert(converter = LocalDateJpaConverter.class)
+    private LocalDate date;
+
+    @Column
+    @Convert(converter = ReportDataJpaConverter.class)
+    private ReportData data;
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public ReportDate getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(ReportDate date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
-    public ReportStats getStats() {
-        return stats;
+    public ReportData getData() {
+        return data;
     }
 
-    public void setStats(ReportStats stats) {
-        this.stats = stats;
-    }
-
-    public List<ReportTransaction> getIncomes() {
-        return incomes;
-    }
-
-    public void setIncomes(List<ReportTransaction> incomes) {
-        this.incomes = incomes;
-    }
-
-    public List<ReportTransaction> getExpenses() {
-        return expenses;
-    }
-
-    public void setExpenses(List<ReportTransaction> expenses) {
-        this.expenses = expenses;
+    public void setData(ReportData data) {
+        this.data = data;
     }
 }

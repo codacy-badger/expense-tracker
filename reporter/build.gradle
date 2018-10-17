@@ -9,9 +9,11 @@ dependencies {
 
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-amqp'
-    compile 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile 'org.flywaydb:flyway-core'
+
+    compile 'org.postgresql:postgresql:9.4.1212'
 
     testCompile 'org.testng:testng:6.14.2'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
-    testCompile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
 }

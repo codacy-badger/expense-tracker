@@ -2,8 +2,8 @@ package com.myprojects.expense.reporter.controller;
 
 import com.myprojects.expense.reporter.config.ReporterControllerConfig;
 import com.myprojects.expense.reporter.model.DayReport;
-import com.myprojects.expense.reporter.model.ReportDate;
-import com.myprojects.expense.reporter.model.ReportStats;
+//import com.myprojects.expense.reporter.model.ReportDate;
+import com.myprojects.expense.reporter.model.ReportData;
 import com.myprojects.expense.reporter.model.ReportTransaction;
 import com.myprojects.expense.reporter.service.ReportService;
 import org.mockito.Mockito;
@@ -70,11 +70,11 @@ public class ReportControllerTests extends AbstractTestNGSpringContextTests {
 
     private static DayReport createReport() {
         DayReport report = new DayReport();
-        report.setId("id");
-        report.setDate(new ReportDate(2018, 12, 1));
-        report.setStats(new ReportStats(BigDecimal.TEN, BigDecimal.TEN, BigDecimal.ZERO));
-        report.setIncomes(Arrays.asList(new ReportTransaction("tid", BigDecimal.TEN, "test")));
-        report.setExpenses(emptyList());
+//        report.setId("id");
+//        report.setDate(new ReportDate(2018, 12, 1));
+//        report.setStats(new ReportData(BigDecimal.TEN, BigDecimal.TEN, BigDecimal.ZERO));
+//        report.setIncomes(Arrays.asList(new ReportTransaction("tid", BigDecimal.TEN, "test")));
+//        report.setExpenses(emptyList());
         return report;
     }
 }
