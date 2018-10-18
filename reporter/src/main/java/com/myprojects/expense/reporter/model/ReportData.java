@@ -1,22 +1,15 @@
 package com.myprojects.expense.reporter.model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-public class ReportStats {
+public class ReportData {
 
     private BigDecimal total;
     private BigDecimal totalIncomes;
     private BigDecimal totalExpenses;
-
-    public ReportStats() {
-
-    }
-
-    public ReportStats(BigDecimal total, BigDecimal totalIncomes, BigDecimal totalExpenses) {
-        this.total = total;
-        this.totalIncomes = totalIncomes;
-        this.totalExpenses = totalExpenses;
-    }
+    private List<ReportTransaction> incomes;
+    private List<ReportTransaction> expenses;
 
     public BigDecimal getTotal() {
         return total;
@@ -40,5 +33,21 @@ public class ReportStats {
 
     public void setTotalExpenses(BigDecimal totalExpenses) {
         this.totalExpenses = totalExpenses;
+    }
+
+    public List<ReportTransaction> getIncomes() {
+        return incomes;
+    }
+
+    public void setIncomes(List<ReportTransaction> incomes) {
+        this.incomes = incomes;
+    }
+
+    public List<ReportTransaction> getExpenses() {
+        return expenses;
+    }
+
+    public void setExpenses(List<ReportTransaction> expenses) {
+        this.expenses = expenses;
     }
 }

@@ -1,57 +1,52 @@
 package com.myprojects.expense.reporter.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.UUID;
 
-import java.util.List;
-
-@Document(collection = "dayReports")
 public class DayReport {
 
-    @Id
-    private String id;
-    private ReportDate date;
-    private ReportStats stats;
-    private List<ReportTransaction> incomes;
-    private List<ReportTransaction> expenses;
+    private UUID id;
+    private LocalDate date;
+    private ReportData data;
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public ReportDate getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(ReportDate date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
-    public ReportStats getStats() {
-        return stats;
+    public ReportData getData() {
+        return data;
     }
 
-    public void setStats(ReportStats stats) {
-        this.stats = stats;
+    public void setData(ReportData data) {
+        this.data = data;
     }
 
-    public List<ReportTransaction> getIncomes() {
-        return incomes;
-    }
+    public static DayReport createEmptyReport(LocalDate date) {
+        ReportData data = new ReportData();
+        data.setTotal(BigDecimal.ZERO);
+        data.setTotalExpenses(BigDecimal.ZERO);
+        data.setTotalIncomes(BigDecimal.ZERO);
+        data.setExpenses(new ArrayList<>());
+        data.setIncomes(new ArrayList<>());
 
-    public void setIncomes(List<ReportTransaction> incomes) {
-        this.incomes = incomes;
-    }
+        DayReport emptyReport = new DayReport();
+        emptyReport.setDate(date);
+        emptyReport.setData(data);
 
-    public List<ReportTransaction> getExpenses() {
-        return expenses;
-    }
-
-    public void setExpenses(List<ReportTransaction> expenses) {
-        this.expenses = expenses;
+        return emptyReport;
     }
 }
