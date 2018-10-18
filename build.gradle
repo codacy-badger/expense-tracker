@@ -1,5 +1,6 @@
 plugins {
     id "com.palantir.jacoco-full-report" version "0.4.0"
+    id "com.avast.gradle.docker-compose" version "0.8.8"
 }
 
 allprojects {
@@ -28,6 +29,8 @@ subprojects {
             outputs.upToDateWhen { false }
         }
 
+        test.dependsOn ':composeUp'
+
         jacocoTestReport {
             dependsOn tasks.withType(Test)
             reports {
@@ -50,4 +53,9 @@ task sendCoverageToCodacy(type: JavaExec) {
     main = "com.codacy.CodacyCoverageReporter"
     classpath = configurations.codacy
     args = ["report", "-l", "Java", "-r", jacocoFullReport.reports.xml.destination.toString()]
+}
+
+dockerCompose {
+    startedServices = ['db', 'mq']
+    projectName = null
 }

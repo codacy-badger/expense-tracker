@@ -3,7 +3,7 @@ package com.myprojects.expense.reporter.service;
 import com.myprojects.expense.messages.EventProtos;
 import com.myprojects.expense.reporter.dao.DayReportDao;
 import com.myprojects.expense.reporter.model.DayReport;
-import com.myprojects.expense.reporter.model.ReportStats;
+import com.myprojects.expense.reporter.model.ReportData;
 import com.myprojects.expense.reporter.model.ReportTransaction;
 import org.springframework.stereotype.Service;
 
@@ -46,15 +46,15 @@ public class DefaultTransactionEventHandler implements TransactionEventHandler {
         transaction.setAmount(new BigDecimal(transactionData.getAmount()));
         transaction.setCategory(transactionData.getCategory());
 
-        ReportStats stats = dayReport.getStats();
+        ReportData data = dayReport.getData();
         if (transactionType) {
-            dayReport.getIncomes().add(transaction);
-            stats.setTotalIncomes(stats.getTotalIncomes().add(transaction.getAmount()));
+            data.getIncomes().add(transaction);
+            data.setTotalIncomes(data.getTotalIncomes().add(transaction.getAmount()));
         } else {
-            dayReport.getExpenses().add(transaction);
-            stats.setTotalExpenses(stats.getTotalExpenses().add(transaction.getAmount()));
+            data.getExpenses().add(transaction);
+            data.setTotalExpenses(data.getTotalExpenses().add(transaction.getAmount()));
         }
-        updateTotal(dayReport.getStats());
+        updateTotal(data);
 
         dayReportDao.save(dayReport);
     }
@@ -62,21 +62,21 @@ public class DefaultTransactionEventHandler implements TransactionEventHandler {
     private void handleDeleteEvent(String transactionId, boolean transactionType, EventProtos.EventData transactionData) {
         DayReport dayReport = getDayReport(transactionData.getDate());
 
-        ReportStats stats = dayReport.getStats();
+        ReportData data = dayReport.getData();
         if (transactionType) {
-            BigDecimal transactionAmount = removeTransactionFromList(transactionId, dayReport.getIncomes());
-            stats.setTotalIncomes(stats.getTotalIncomes().subtract(transactionAmount));
+            BigDecimal transactionAmount = removeTransactionFromList(transactionId, data.getIncomes());
+            data.setTotalIncomes(data.getTotalIncomes().subtract(transactionAmount));
         } else {
-            BigDecimal transactionAmount = removeTransactionFromList(transactionId, dayReport.getExpenses());
-            stats.setTotalExpenses(stats.getTotalExpenses().subtract(transactionAmount));
+            BigDecimal transactionAmount = removeTransactionFromList(transactionId, data.getExpenses());
+            data.setTotalExpenses(data.getTotalExpenses().subtract(transactionAmount));
         }
-        updateTotal(dayReport.getStats());
+        updateTotal(data);
 
         dayReportDao.save(dayReport);
     }
 
-    private static void updateTotal(ReportStats stats) {
-        stats.setTotal(stats.getTotalIncomes().subtract(stats.getTotalExpenses()));
+    private static void updateTotal(ReportData data) {
+        data.setTotal(data.getTotalIncomes().subtract(data.getTotalExpenses()));
     }
 
     private static BigDecimal removeTransactionFromList(String transactionId, List<ReportTransaction> transactions) {

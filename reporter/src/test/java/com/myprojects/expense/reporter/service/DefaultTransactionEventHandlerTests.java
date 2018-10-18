@@ -6,8 +6,7 @@ import com.myprojects.expense.messages.EventProtos.EventType;
 import com.myprojects.expense.reporter.config.ReporterServiceConfig;
 import com.myprojects.expense.reporter.dao.DayReportDao;
 import com.myprojects.expense.reporter.model.DayReport;
-import com.myprojects.expense.reporter.model.ReportDate;
-import com.myprojects.expense.reporter.model.ReportStats;
+import com.myprojects.expense.reporter.model.ReportData;
 import com.myprojects.expense.reporter.model.ReportTransaction;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -21,6 +20,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import static java.math.BigDecimal.*;
@@ -55,94 +55,102 @@ public class DefaultTransactionEventHandlerTests extends AbstractTestNGSpringCon
     public void testCreateEventForExpenseTransaction() throws Exception {
         mockInitialReportNoTransactions();
         DayReport report = handleEvent(newCreateEvent("some_id", false));
-        assertThat(report.getIncomes(), hasSize(0));
-        assertThat(report.getExpenses(), hasSize(1));
-        assertThat(report.getExpenses().get(0).getId(), is("some_id"));
-        assertThat(report.getExpenses().get(0).getAmount(), is(ONE));
-        assertThat(report.getExpenses().get(0).getCategory(), is("abc"));
-        assertThat(report.getStats().getTotal(), is(ONE.negate()));
-        assertThat(report.getStats().getTotalIncomes(), is(ZERO));
-        assertThat(report.getStats().getTotalExpenses(), is(ONE));
+        ReportData data = report.getData();
+        assertThat(data.getIncomes(), hasSize(0));
+        assertThat(data.getExpenses(), hasSize(1));
+        assertThat(data.getExpenses().get(0).getId(), is("some_id"));
+        assertThat(data.getExpenses().get(0).getAmount(), is(ONE));
+        assertThat(data.getExpenses().get(0).getCategory(), is("abc"));
+        assertThat(data.getTotal(), is(ONE.negate()));
+        assertThat(data.getTotalIncomes(), is(ZERO));
+        assertThat(data.getTotalExpenses(), is(ONE));
     }
 
     @Test
     public void testCreateEventForIncomeTransaction() throws Exception {
         mockInitialReportNoTransactions();
         DayReport report = handleEvent(newCreateEvent("some_id", true));
-        assertThat(report.getIncomes(), hasSize(1));
-        assertThat(report.getIncomes().get(0).getId(), is("some_id"));
-        assertThat(report.getIncomes().get(0).getAmount(), is(ONE));
-        assertThat(report.getIncomes().get(0).getCategory(), is("abc"));
-        assertThat(report.getExpenses(), hasSize(0));
-        assertThat(report.getStats().getTotal(), is(ONE));
-        assertThat(report.getStats().getTotalIncomes(), is(ONE));
-        assertThat(report.getStats().getTotalExpenses(), is(ZERO));
+        ReportData data = report.getData();
+        assertThat(data.getIncomes(), hasSize(1));
+        assertThat(data.getIncomes().get(0).getId(), is("some_id"));
+        assertThat(data.getIncomes().get(0).getAmount(), is(ONE));
+        assertThat(data.getIncomes().get(0).getCategory(), is("abc"));
+        assertThat(data.getExpenses(), hasSize(0));
+        assertThat(data.getTotal(), is(ONE));
+        assertThat(data.getTotalIncomes(), is(ONE));
+        assertThat(data.getTotalExpenses(), is(ZERO));
     }
 
     @Test
     public void testCreateEventWithInitialReport() throws Exception {
         mockInitialReport("income_id1", "expense_id1");
         DayReport report = handleEvent(newCreateEvent("income_id2", false));
-        assertThat(report.getIncomes(), hasSize(1));
-        assertThat(report.getExpenses(), hasSize(2));
-        assertThat(report.getStats().getTotal(), is(new BigDecimal("4")));
-        assertThat(report.getStats().getTotalIncomes(), is(TEN));
-        assertThat(report.getStats().getTotalExpenses(), is(new BigDecimal("6")));
+        ReportData data = report.getData();
+        assertThat(data.getIncomes(), hasSize(1));
+        assertThat(data.getExpenses(), hasSize(2));
+        assertThat(data.getTotal(), is(new BigDecimal("4")));
+        assertThat(data.getTotalIncomes(), is(TEN));
+        assertThat(data.getTotalExpenses(), is(new BigDecimal("6")));
     }
 
     @Test
     public void testDeleteEventForIncomeTransaction() throws Exception {
         mockInitialReport("income_id", "expense_id");
         DayReport report = handleEvent(newDeleteEvent("income_id", true));
-        assertThat(report.getIncomes(), hasSize(0));
-        assertThat(report.getExpenses(), hasSize(1));
-        assertThat(report.getStats().getTotal(), is(FIVE.negate()));
-        assertThat(report.getStats().getTotalIncomes(), is(ZERO));
-        assertThat(report.getStats().getTotalExpenses(), is(FIVE));
+        ReportData data = report.getData();
+        assertThat(data.getIncomes(), hasSize(0));
+        assertThat(data.getExpenses(), hasSize(1));
+        assertThat(data.getTotal(), is(FIVE.negate()));
+        assertThat(data.getTotalIncomes(), is(ZERO));
+        assertThat(data.getTotalExpenses(), is(FIVE));
     }
 
     @Test
     public void testDeleteEventForExpenseTransaction() throws Exception {
         mockInitialReport("income_id", "expense_id");
         DayReport report = handleEvent(newDeleteEvent("expense_id", false));
-        assertThat(report.getIncomes(), hasSize(1));
-        assertThat(report.getExpenses(), hasSize(0));
-        assertThat(report.getStats().getTotal(), is(TEN));
-        assertThat(report.getStats().getTotalIncomes(), is(TEN));
-        assertThat(report.getStats().getTotalExpenses(), is(ZERO));
+        ReportData data = report.getData();
+        assertThat(data.getIncomes(), hasSize(1));
+        assertThat(data.getExpenses(), hasSize(0));
+        assertThat(data.getTotal(), is(TEN));
+        assertThat(data.getTotalIncomes(), is(TEN));
+        assertThat(data.getTotalExpenses(), is(ZERO));
     }
 
     @Test
     public void testDeleteEventNoInitialReport() throws Exception {
         mockInitialReportNoTransactions();
         DayReport report = handleEvent(newDeleteEvent("some_id", false));
-        assertThat(report.getIncomes(), hasSize(0));
-        assertThat(report.getExpenses(), hasSize(0));
-        assertThat(report.getStats().getTotal(), is(ZERO));
-        assertThat(report.getStats().getTotalIncomes(), is(ZERO));
-        assertThat(report.getStats().getTotalExpenses(), is(ZERO));
+        ReportData data = report.getData();
+        assertThat(data.getIncomes(), hasSize(0));
+        assertThat(data.getExpenses(), hasSize(0));
+        assertThat(data.getTotal(), is(ZERO));
+        assertThat(data.getTotalIncomes(), is(ZERO));
+        assertThat(data.getTotalExpenses(), is(ZERO));
     }
 
     @Test
     public void testModifyEventForIncomeTransaction() throws Exception {
         mockInitialReport("income_id", "expense_id");
         DayReport report = handleEvent(newModifyEvent("income_id", true));
-        assertThat(report.getIncomes(), hasSize(1));
-        assertThat(report.getExpenses(), hasSize(1));
-        assertThat(report.getStats().getTotal(), is(new BigDecimal("15")));
-        assertThat(report.getStats().getTotalIncomes(), is(new BigDecimal("20")));
-        assertThat(report.getStats().getTotalExpenses(), is(FIVE));
+        ReportData data = report.getData();
+        assertThat(data.getIncomes(), hasSize(1));
+        assertThat(data.getExpenses(), hasSize(1));
+        assertThat(data.getTotal(), is(new BigDecimal("15")));
+        assertThat(data.getTotalIncomes(), is(new BigDecimal("20")));
+        assertThat(data.getTotalExpenses(), is(FIVE));
     }
 
     @Test
     public void testModifyEventForExpenseTransaction() throws Exception {
         mockInitialReport("income_id", "expense_id");
         DayReport report = handleEvent(newModifyEvent("expense_id", false));
-        assertThat(report.getIncomes(), hasSize(1));
-        assertThat(report.getExpenses(), hasSize(1));
-        assertThat(report.getStats().getTotal(), is(TEN.negate()));
-        assertThat(report.getStats().getTotalIncomes(), is(TEN));
-        assertThat(report.getStats().getTotalExpenses(), is(new BigDecimal("20")));
+        ReportData data = report.getData();
+        assertThat(data.getIncomes(), hasSize(1));
+        assertThat(data.getExpenses(), hasSize(1));
+        assertThat(data.getTotal(), is(TEN.negate()));
+        assertThat(data.getTotalIncomes(), is(TEN));
+        assertThat(data.getTotalExpenses(), is(new BigDecimal("20")));
     }
 
     private DayReport handleEvent(Event event) {
@@ -153,8 +161,8 @@ public class DefaultTransactionEventHandlerTests extends AbstractTestNGSpringCon
         Mockito.verify(dayReportDao, atLeast(1)).save(requestCaptor.capture());
         DayReport report = requestCaptor.getValue();
         assertThat(report, notNullValue());
-        assertThat(report.getDate().getDay(), is(1));
-        assertThat(report.getDate().getMonth(), is(12));
+        assertThat(report.getDate().getDayOfMonth(), is(1));
+        assertThat(report.getDate().getMonthValue(), is(12));
         assertThat(report.getDate().getYear(), is(2000));
 
         return report;
@@ -167,21 +175,23 @@ public class DefaultTransactionEventHandlerTests extends AbstractTestNGSpringCon
         ArrayList<ReportTransaction> expenses = new ArrayList<>();
         expenses.add(new ReportTransaction(expenseTransactionId, FIVE, "abc"));
 
+        ReportData data = new ReportData();
+        data.setTotal(FIVE);
+        data.setTotalIncomes(TEN);
+        data.setTotalExpenses(FIVE);
+        data.setIncomes(incomes);
+        data.setExpenses(expenses);
+
         DayReport initialReport = new DayReport();
-        initialReport.setDate(new ReportDate(2000, 12, 1));
-        initialReport.setIncomes(incomes);
-        initialReport.setExpenses(expenses);
-        initialReport.setStats(new ReportStats(FIVE, TEN, FIVE));
+        initialReport.setDate(LocalDate.of(2000, 12, 1));
+        initialReport.setData(data);
+
         Mockito.when(reportService.getDayReport(eq(2000), eq(12), eq(1)))
                 .thenReturn(initialReport);
     }
 
     private void mockInitialReportNoTransactions() {
-        DayReport emptyReport = new DayReport();
-        emptyReport.setDate(new ReportDate(2000, 12, 1));
-        emptyReport.setExpenses(new ArrayList<>());
-        emptyReport.setIncomes(new ArrayList<>());
-        emptyReport.setStats(new ReportStats(ZERO, ZERO, ZERO));
+        DayReport emptyReport = DayReport.createEmptyReport(LocalDate.of(2000, 12, 1));
         Mockito.when(reportService.getDayReport(eq(2000), eq(12), eq(1)))
                 .thenReturn(emptyReport);
     }
